@@ -1,102 +1,100 @@
-import User from "../models/UserSchema.js";
-import Booking from "../models/BookingSchema.js";
-import Doctor from "../models/DoctorSchema.js";
+const User = require("../models/UserSchema.js");
+const Booking = require("../models/BookingSchema.js");
+const Doctor = require("../models/DoctorSchema.js");
 
-export const updateUser = async (req, res) => {
-  const id = req.params.id;
+module.exports = {
+  updateUser: async (req, res) => {
+    const id = req.params.id;
 
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { $set: req.body },
-      { new: true }
-    );
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { $set: req.body },
+        { new: true }
+      );
 
-    res.status(200).json({
-      success: true,
-      message: "Successfully updated!",
-      data: updatedUser,
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to update!" });
-  }
-};
+      res.status(200).json({
+        success: true,
+        message: "Successfully updated!",
+        data: updatedUser,
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: "Failed to update!" });
+    }
+  },
 
-export const deleteUser = async (req, res) => {
-  const id = req.params.id;
+  deleteUser: async (req, res) => {
+    const id = req.params.id;
 
-  try {
-    const updatedUser = await User.findByIdAndDelete(id);
+    try {
+      const updatedUser = await User.findByIdAndDelete(id);
 
-    res.status(200).json({
-      success: true,
-      message: "Successfully deleted!",
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to delete!" });
-  }
-};
+      res.status(200).json({
+        success: true,
+        message: "Successfully deleted!",
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: "Failed to delete!" });
+    }
+  },
+  getSingleUser: async (req, res) => {
+    const id = req.params.id;
 
-export const getSingleUser = async (req, res) => {
-  const id = req.params.id;
+    try {
+      const user = await User.findById(id).select("-password");
 
-  try {
-    const user = await User.findById(id).select("-password");
+      res.status(200).json({
+        success: true,
+        message: "User found!",
+        data: user,
+      });
+    } catch (err) {
+      res.status(404).json({ success: false, message: "No user found!" });
+    }
+  },
+  getAllUser: async (req, res) => {
+    try {
+      const users = await User.find({}).select("-password");
 
-    res.status(200).json({
-      success: true,
-      message: "User found!",
-      data: user,
-    });
-  } catch (err) {
-    res.status(404).json({ success: false, message: "No user found!" });
-  }
-};
-
-export const getAllUser = async (req, res) => {
-  try {
-    const users = await User.find({}).select("-password");
-
-    res.status(200).json({
-      success: true,
-      message: "Users found!",
-      data: users,
-    });
-  } catch (err) {
-    res.status(404).json({ success: false, message: "Not found!" });
-  }
-};
-
-export const getUserProfile = async(req,res) =>{
+      res.status(200).json({
+        success: true,
+        message: "Users found!",
+        data: users,
+      });
+    } catch (err) {
+      res.status(404).json({ success: false, message: "Not found!" });
+    }
+  },
+  getUserProfile: async (req, res) => {
     const userId = req.userId;
 
-    try{ 
-        const user = await User.findById(userId)
-
-
-        if(!user){
-            return res.status(404).JSON({success:false, message:'User not found'})
-        }
-        const {password, ...rest} = user._doc
-
-        res.status(200).JSON({success:true, message:'profile info is getting ', data:{...rest}})
-    } catch(err){
-        return res.status(500).JSON({success:false, message:'something went wrong, cannot get'})
-    }
-};
-
-export const getMyAppointments = async(req,res) =>{
     try {
-        
-        //step1 retrieve appointments from booking 
-        const bookings = await Booking.find({user:req.userId})
-        //step2 extract doctor ids from appointments
-        const doctorIds = bookings.map(el=>el.doctor.id)
-        //step3 retrive doctors using extracted doctor id
-        const doctors = await Doctor.find({_id: {$in:doctorIds}}).select('-password')
+      const user = await User.findById(userId)
 
-        res.status(200).JSON({success:true, message:'Appointments are getting', data:doctors})
-    } catch (error) {
-        return res.status(500).JSON({success:false, message:'something went wrong, cannot get'})
+
+      if (!user) {
+        return res.status(404).JSON({ success: false, message: 'User not found' })
+      }
+      const { password, ...rest } = user._doc
+
+      res.status(200).JSON({ success: true, message: 'profile info is getting ', data: { ...rest } })
+    } catch (err) {
+      return res.status(500).JSON({ success: false, message: 'something went wrong, cannot get' })
     }
+  },
+  getMyAppointments: async (req, res) => {
+    try {
+
+      //step1 retrieve appointments = require(booking) 
+      const bookings = await Booking.find({ user: req.userId })
+      //step2 extract doctor ids = require(appointment)s
+      const doctorIds = bookings.map(el => el.doctor.id)
+      //step3 retrive doctors using extracted doctor id
+      const doctors = await Doctor.find({ _id: { $in: doctorIds } }).select('-password')
+
+      res.status(200).JSON({ success: true, message: 'Appointments are getting', data: doctors })
+    } catch (error) {
+      return res.status(500).JSON({ success: false, message: 'something went wrong, cannot get' })
+    }
+  }
 }

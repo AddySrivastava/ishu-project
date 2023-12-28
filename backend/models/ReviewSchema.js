@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import Doctor from "./DoctorSchema.js";
+const mongoose = require("mongoose");
+const Doctor = require("./DoctorSchema.js");
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -26,34 +26,35 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-reviewSchema.pre(/^find/,function(next){
+reviewSchema.pre(/^find/, function (next) {
   this.populate({
-    path:'user',
-    select:'name photo',
+    path: 'user',
+    select: 'name photo',
   });
 
   next();
 });
 
-reviewSchema.statics.calcAverageRatings=async function(doctorId){
+reviewSchema.statics.calcAverageRatings = async function (doctorId) {
   const stats = await this.aggregate([{
-    $match:{doctor:doctorId}
+    $match: { doctor: doctorId }
   },
-{
-  $group:{
-    _id:'$doctor',
-    numofRating:{$sum:1},
-    avgRating:{$avg:'$rating'},
+  {
+    $group: {
+      _id: '$doctor',
+      numofRating: { $sum: 1 },
+      avgRating: { $avg: '$rating' },
+    },
   },
-},
-]);
-await Doctor.findByIdAndUpdate(doctorId,{
-  totalRating:stats[0].numofRating,
-  averageRating:stats[0].avgRating
-})
-console.log(stats);
+  ]);
+  await Doctor.findByIdAndUpdate(doctorId, {
+    totalRating: stats[0].numofRating,
+    averageRating: stats[0].avgRating
+  })
+  console.log(stats);
 };
-reviewSchema.post('save',function(){
+reviewSchema.post('save', function () {
   this.constructor.calcAverageRatings(this.doctor);
 });
-export default mongoose.model("Review", reviewSchema);
+
+module.exports = mongoose.model("Review", reviewSchema);

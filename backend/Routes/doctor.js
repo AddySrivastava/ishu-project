@@ -1,19 +1,19 @@
-import express from "express";
-import {
+const express = require("express");
+const {
   updateDoctor,
   deleteDoctor,
   getAllDoctor,
   getSingleDoctor,
-} from "../Controllers/doctorController.js";
-import { authenticate, restrict } from "../auth/verifyToken.js";
+  getDoctorProfile
+} = require("../controllers/doctorController.js");
+const { authenticate, restrict } = require("../auth/verifyToken.js");
 
-import reviewRouter from "./review.js";
-import { getDoctorProfile } from "../Controllers/doctorContoller.js";
+const reviewRouter = require("./review.js");
 
 const router = express.Router();
 
 //nested route
-router.use('/doctorId/reviews',reviewRouter);
+router.use('/doctorId/reviews', reviewRouter);
 
 router.get("/:id", getSingleDoctor);
 router.get("/", getAllDoctor);
@@ -22,4 +22,4 @@ router.delete("/:id", authenticate, restrict(["doctor"]), deleteDoctor);
 
 router.get('/profile/me', authenticate, restrict(['doctor']), getDoctorProfile);
 
-export default router;
+module.exports = router;

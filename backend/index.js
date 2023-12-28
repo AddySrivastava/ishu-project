@@ -1,35 +1,35 @@
-import express from "express"
-import cookieParser from "cookie-parser"
-import cors from 'cors'
-import mongoose, { mongo } from "mongoose"
-import dotenv from 'dotenv'
-import authRoute from "./Routes/auth.js"
-import userRoute from "./Routes/user.js"
-import doctorRoute from "./Routes/doctor.js"
-import reviewRoute from "./Routes/review.js"
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const cors = require('cors');
+const { mongoose, mongo } = require("mongoose");
+const dotenv = require('dotenv');
+const authRoute = require("./Routes/auth.js");
+const userRoute = require("./Routes/user.js");
+const doctorRoute = require("./Routes/doctor.js");
+const reviewRoute = require("./Routes/review.js");
 
 dotenv.config();
 
-const app=express();
-const port=process.env.PORT || 8000;
-const corsOptions={
-    origin:true,
+const app = express();
+const port = process.env.PORT || 8000;
+const corsOptions = {
+    origin: true,
 };
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.send('Api is working');
 })
 
 //database connection
-mongoose.set('strictQuery',false);
-const connectDB=async()=>{
-    try{
-        mongoose.connect(process.env.MONGO_URL,{
-            useNewUrlParser:true,
-            useUnifiedTopology:true,
+mongoose.set('strictQuery', false);
+const connectDB = async () => {
+    try {
+        mongoose.connect(process.env.MONGO_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
         })
         console.log('MongoDB database is connected')
     }
-    catch(err){
+    catch (err) {
         console.log('MongoDB database is connection failed')
     }
 }
@@ -37,12 +37,12 @@ const connectDB=async()=>{
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors(corsOptions))
-app.use('/api/v1/auth',authRoute)
-app.use('/api/v1/users',userRoute)
-app.use('/api/v1/doctor',doctorRoute)
-app.use('/api/v1/review',reviewRoute)
+app.use('/api/v1/auth', authRoute)
+app.use('/api/v1/users', userRoute)
+app.use('/api/v1/doctor', doctorRoute)
+app.use('/api/v1/review', reviewRoute)
 
-app.listen(port,()=>{
+app.listen(port, () => {
     connectDB();
-    console.log('server is running on port'+port);
+    console.log('server is running on port' + port);
 })

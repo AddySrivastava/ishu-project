@@ -1,15 +1,15 @@
-import express from 'express'
-import { getAllReviews, createReview } from '../Controllers/reviewController.js'
-import { authenticate, restrict } from './../auth/verifyToken.js'
+const express = require('express');
+const { getAllReviews, createReview } = require('../controllers/reviewController.js');
+const { authenticate, restrict } = require('./../auth/verifyToken.js');
 
-const router = express.Router({mergerParams: true});
+const router = express.Router({ mergerParams: true });
 
 // doctor/doctorId/reviews
 
 router
-.route('/')
-.get(getAllReviews)
-.post(authenticate, restrict(['patient']), createReview)
+    .route('/')
+    .get(getAllReviews)
+    .post(authenticate, restrict(['patient']), createReview)
 
 
-export default router;
+module.exports = router;
